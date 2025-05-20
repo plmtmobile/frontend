@@ -19,7 +19,9 @@
     </div>
     <div id="dashboard-section" class="hidden mt-6">
       <p class="mb-2">✅ Logged in. Your API key:</p>
-      <textarea id="apiKeyBox" class="w-full p-2 bg-gray-100 rounded border text-sm" rows="2" readonly></textarea>
+      <textarea id="apiKeyBox" class="w-full p-2 bg-gray-100 rounded border text-sm mb-4" rows="2" readonly></textarea>
+      <button onclick="findMatch()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700">Find Match</button>
+      <div id="matchStatus" class="text-sm mt-4 text-center text-gray-700 hidden"></div>
     </div>
   </div>
   <script src="script.js"></script>
