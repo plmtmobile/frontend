@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Matchmaker Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="w-full max-w-md bg-white p-6 rounded-2xl shadow-xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">🎮 Matchmaker Dashboard</h1>
+    <div id="form-section">
+      <input id="email" type="email" placeholder="Email" class="w-full p-2 mb-2 border rounded"/>
+      <input id="password" type="password" placeholder="Password" class="w-full p-2 mb-4 border rounded"/>
+      <div class="flex gap-2">
+        <button onclick="register()" class="w-1/2 bg-blue-500 text-white py-2 rounded hover:bg-blue-600">Register</button>
+        <button onclick="login()" class="w-1/2 bg-green-500 text-white py-2 rounded hover:bg-green-600">Login</button>
+      </div>
+    </div>
+    <div id="dashboard-section" class="hidden mt-6">
+      <p class="mb-2">✅ Logged in. Your API key:</p>
+      <textarea id="apiKeyBox" class="w-full p-2 bg-gray-100 rounded border text-sm" rows="2" readonly></textarea>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
