@@ -1,6 +1,6 @@
 const BASE_URL = "https://mpservice-6tm6.onrender.com";
 let currentApiKey = "";
-let pollingInterval = null;
+let roomPolling = null;
 
 function register() {
   const email = document.getElementById("email").value;
@@ -39,40 +39,66 @@ function showApiKey(apiKey) {
   document.getElementById("apiKeyBox").value = apiKey;
 }
 
-function findMatch() {
-  if (!currentApiKey) return alert("Not authenticated");
-  document.getElementById("matchStatus").classList.remove("hidden");
-  document.getElementById("matchStatus").textContent = "🔍 Looking for match...";
-  clearInterval(pollingInterval);
-  sendMatchRequest(true);
+function createRoom() {
+  const maxPlayers = parseInt(document.getElementById("maxPlayers").value) || 2;
+  fetch(BASE_URL + "/room/create", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ apiKey: currentApiKey, maxPlayers })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.roomId) {
+      document.getElementById("matchStatus").classList.remove("hidden");
+      document.getElementById("matchStatus").textContent = "🛠 Room created. Waiting for players...";
+      startPollingStatus();
+    } else {
+      alert("❌ Failed to create room");
+    }
+  });
 }
 
-function sendMatchRequest(startPolling = false) {
-  fetch(BASE_URL + "/match", {
+function joinRoom() {
+  fetch(BASE_URL + "/room/join", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ apiKey: currentApiKey })
   })
   .then(r => r.json())
   .then(data => {
-    if (data.status === "matched") {
-      document.getElementById("matchStatus").textContent = "🎯 Opponent found: " + data.opponent;
-      clearInterval(pollingInterval);
-    } else if (data.status === "waiting") {
-      document.getElementById("matchStatus").textContent = "⏳ Waiting for an opponent...";
-      if (startPolling) {
-        pollingInterval = setInterval(() => sendMatchRequest(false), 5000);
-      }
+    document.getElementById("matchStatus").classList.remove("hidden");
+    if (data.status === "joined") {
+      document.getElementById("matchStatus").textContent = "🎮 Joined room. Waiting for others...";
+      startPollingStatus();
     } else {
-      document.getElementById("matchStatus").textContent = "❌ Error: " + (data.error || "Unknown response");
-      clearInterval(pollingInterval);
+      document.getElementById("matchStatus").textContent = "⏳ No open rooms. Try again later.";
     }
   });
 }
 
+function startPollingStatus() {
+  clearInterval(roomPolling);
+  roomPolling = setInterval(() => {
+    fetch(BASE_URL + "/room/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey: currentApiKey })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === "full") {
+        document.getElementById("matchStatus").textContent = "✅ Room full! Opponents: " + data.opponent.join(", ");
+        clearInterval(roomPolling);
+      } else if (data.status === "waiting") {
+        document.getElementById("matchStatus").textContent = "⏳ Waiting for players...";
+      }
+    });
+  }, 5000);
+}
+
 function logout() {
   currentApiKey = "";
-  clearInterval(pollingInterval);
+  clearInterval(roomPolling);
   document.getElementById("form-section").classList.remove("hidden");
   document.getElementById("dashboard-section").classList.add("hidden");
   document.getElementById("email").value = "";
